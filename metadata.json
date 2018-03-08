@@ -1,0 +1,8 @@
+{
+  "description": "Monitors memory usage of gnome-shell process",
+  "name": "Gnome-Shell Memory monitor",
+  "shell-version": [
+    "3.22.3"
+  ],
+  "uuid": "gsmemmon@korc.github.io"
+}
