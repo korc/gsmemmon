@@ -27,10 +27,27 @@ function init() {
     //                          style_class: 'system-status-icon' });
 
     statusFile = Gio.File.new_for_path('/proc/self/status');
-    buttonLabel = new St.Label({text: "?? MB"});
+    buttonLabel = new St.Label({ text: "?? MB" });
     // button.set_child(icon);
     button.set_child(buttonLabel);
     button.connect('button-press-event', _reloadShell);
+}
+
+let units = [['kb', 1024], ['mb', 1024 * 1024], ['gb', 1024 * 1024 * 1024]];
+
+function normalizeSizeUnits(s) {
+    var unitDict = {};
+    units.forEach(function (u) { unitDict[u[0]] = u[1]; });
+    var m = s.match(/^([0-9]+)(?:\s+(kb|mb|gb))?$/i);
+    if (!m) return s;
+    var value = parseInt(m[1]);
+    if (m[2]) value = value * unitDict[m[2].toLowerCase()];
+    var ret = value + " B";
+    for (var i = 0; i < units.length; i++) {
+        if (value >= units[i][1])
+            ret = (Math.round(value * 10 / units[i][1]) / 10) + " " + units[i][0];
+    }
+    return ret.toUpperCase();
 }
 
 function updateLabel() {
@@ -39,7 +56,7 @@ function updateLabel() {
     let data = fileInput.read_bytes(8192, null).get_data();
     let pid = ("" + data).match(/^Pid:\s+([0-9]+)/m)[1];
     let mem = ("" + data).match(/^RssAnon:\s+(.*)$/m)[1];
-    buttonLabel.set_text('['+pid+'] ' + mem);
+    buttonLabel.set_text('[' + pid + '] ' + normalizeSizeUnits(mem));
     return true;
 }
 
